@@ -73,6 +73,7 @@ class StorageRepository{
         description: String,
         timestamp: Timestamp,
         color: Int = 0,
+        address: String,
         onComplete: (Boolean) -> Unit
     ) {
         val documentId = notesRef.document().id
@@ -82,6 +83,7 @@ class StorageRepository{
             description,
             timestamp,
             colorIndex = color,
+            address,
             documentedId = documentId
         )
         notesRef
@@ -106,12 +108,14 @@ class StorageRepository{
         title: String,
         note: String,
         color: Int,
+        address: String,
         onResult: (Boolean) -> Unit
     ){
         val updateData = hashMapOf<String,Any>(
             "colorIndex" to color,
             "description" to note,
-            "title" to title
+            "title" to title,
+            "address" to address
         )
 
         notesRef.document(noteId)

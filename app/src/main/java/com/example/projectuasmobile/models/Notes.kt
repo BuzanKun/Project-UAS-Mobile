@@ -8,5 +8,6 @@ data class Notes(
     val description: String = "",
     val timestamp: Timestamp = Timestamp.now(),
     val colorIndex: Int = 0,
+    val address: String = "",
     val documentedId: String = ""
 )

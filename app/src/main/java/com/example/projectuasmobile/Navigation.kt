@@ -1,11 +1,13 @@
 package com.example.projectuasmobile
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
@@ -13,6 +15,9 @@ import com.example.projectuasmobile.detail.DetailScreen
 import com.example.projectuasmobile.detail.DetailViewModel
 import com.example.projectuasmobile.home.Home
 import com.example.projectuasmobile.home.HomeViewModel
+import com.example.projectuasmobile.location.LocationUtils
+import com.example.projectuasmobile.location.LocationViewModel
+import com.example.projectuasmobile.location.MapScreen
 import com.example.projectuasmobile.login.LoginScreen
 import com.example.projectuasmobile.login.LoginViewModel
 import com.example.projectuasmobile.login.SignUpScreen
@@ -37,14 +42,15 @@ fun Navigation(
     navController: NavHostController = rememberNavController(),
     loginViewModel: LoginViewModel,
     detailViewModel: DetailViewModel,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    locationViewModel: LocationViewModel
 ) {
     NavHost(
         navController = navController,
         startDestination = NestedRoutes.Main.name
     ) {
         authGraph(navController, loginViewModel)
-        homeGraph(navController = navController, detailViewModel, homeViewModel)
+        homeGraph(navController = navController, detailViewModel, homeViewModel, locationViewModel)
     }
 }
 
@@ -94,7 +100,8 @@ fun NavGraphBuilder.authGraph(
 fun NavGraphBuilder.homeGraph(
     navController: NavHostController,
     detailViewModel: DetailViewModel,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    locationViewModel: LocationViewModel,
 ){
     navigation(
         startDestination = HomeRoutes.Home.name,
@@ -131,9 +138,23 @@ fun NavGraphBuilder.homeGraph(
         ){entry ->
             DetailScreen(
                 detailViewModel = detailViewModel,
-                noteId = entry.arguments?.getString("id") as String
+                noteId = entry.arguments?.getString("id") as String,
+                locationViewModel = locationViewModel,
+                context = LocalContext.current,
+                locationUtils = LocationUtils(LocalContext.current),
+                navController = navController
             ) {
                 navController.navigateUp()
+            }
+        }
+
+        dialog("locationscreen") { backstack ->
+            locationViewModel.location.value?.let { it1 ->
+                MapScreen(location = it1, onLocationSelected = { locationData, address ->
+                    locationViewModel.fetchAddress("${locationData.latitude}, ${locationData.longitude}")
+                    detailViewModel.onAddressChange(address)
+                    navController.popBackStack()
+                })
             }
         }
     }

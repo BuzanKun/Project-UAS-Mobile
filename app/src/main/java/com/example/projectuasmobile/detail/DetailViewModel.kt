@@ -33,6 +33,10 @@ class DetailViewModel(
         detailUiState = detailUiState.copy(note = note)
     }
 
+    fun onAddressChange(address: String){
+        detailUiState = detailUiState.copy(address = address)
+    }
+
     fun addNote(){
         if (hasUser){
             repository.addNote(
@@ -40,6 +44,7 @@ class DetailViewModel(
                 title = detailUiState.title,
                 description = detailUiState.note,
                 color = detailUiState.colorIndex,
+                address = detailUiState.address,
                 timestamp = Timestamp.now()
             ){
                 detailUiState = detailUiState.copy(noteAddedStatus = it)
@@ -51,7 +56,8 @@ class DetailViewModel(
         detailUiState = detailUiState.copy(
             colorIndex = note.colorIndex,
             title = note.title,
-            note = note.description
+            note = note.description,
+            address = note.address
         )
     }
 
@@ -67,8 +73,9 @@ class DetailViewModel(
             title = detailUiState.title,
             note = detailUiState.note,
             noteId = noteId,
-            color = detailUiState.colorIndex
-        ){
+            color = detailUiState.colorIndex,
+            address = detailUiState.address
+            ){
             detailUiState = detailUiState.copy(updateNoteStatus = it)
         }
     }
@@ -87,6 +94,7 @@ data class DetailUiState(
     val colorIndex: Int = 0,
     val title: String = "",
     val note: String = "",
+    val address: String = "",
     val noteAddedStatus: Boolean = false,
     val updateNoteStatus: Boolean = false,
     val selectedNote: Notes? = null

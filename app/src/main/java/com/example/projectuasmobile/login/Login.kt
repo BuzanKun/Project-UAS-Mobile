@@ -8,8 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,11 +42,13 @@ fun SignUpScreen(
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "Sign Up",
-            fontWeight = FontWeight.Black
+            fontWeight = FontWeight.Black,
+            style = MaterialTheme.typography.headlineMedium
         )
 
         if (isError){
@@ -58,6 +65,7 @@ fun SignUpScreen(
             value = loginUiState?.userNameSignUp ?: "",
             onValueChange = {loginViewModel?.onUserNameChangeSignUp(it)},
             leadingIcon = {
+                Icon(imageVector = Icons.Default.Email, contentDescription = null)
             },
             label = {
                 Text(text = "Email")
@@ -72,6 +80,7 @@ fun SignUpScreen(
             value = loginUiState?.passwordSignUp ?: "",
             onValueChange = {loginViewModel?.onPasswordChangeSignUp(it)},
             leadingIcon = {
+                Icon(imageVector = Icons.Default.Lock, contentDescription = null)
             },
             label = {
                 Text(text = "Password")
@@ -87,6 +96,7 @@ fun SignUpScreen(
             value = loginUiState?.confirmPasswordSignUp ?: "",
             onValueChange = {loginViewModel?.onConfirmPasswordChange(it)},
             leadingIcon = {
+                Icon(imageVector = Icons.Default.Lock, contentDescription = null)
             },
             label = {
                 Text(text = "Confirm Password")
@@ -104,9 +114,9 @@ fun SignUpScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = "Already have an Account?")
-            Spacer(modifier = Modifier.size(8.dp))
-            TextButton(onClick = { onNavToLoginPage.invoke() }) {
+            Text(text = "Already have an Account?",
+                modifier = Modifier.padding(12.dp))
+            Button(onClick = { onNavToLoginPage.invoke() }) {
                 Text(text = "Sign In")
             }
         }
@@ -135,11 +145,13 @@ fun LoginScreen(
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "Login",
-            fontWeight = FontWeight.Black
+            fontWeight = FontWeight.Black,
+            style = MaterialTheme.typography.headlineMedium
         )
 
         if (isError){
@@ -156,6 +168,7 @@ fun LoginScreen(
             value = loginUiState?.userName ?: "",
             onValueChange = {loginViewModel?.onUserNameChange(it)},
             leadingIcon = {
+                Icon(imageVector = Icons.Default.Email, contentDescription = null)
             },
             label = {
                 Text(text = "Email")
@@ -170,6 +183,7 @@ fun LoginScreen(
             value = loginUiState?.password ?: "",
             onValueChange = {loginViewModel?.onPasswordChange(it)},
             leadingIcon = {
+                Icon(imageVector = Icons.Default.Lock, contentDescription = null)
             },
             label = {
                 Text(text = "Password")
@@ -187,9 +201,9 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = "Don't have an Account?")
-            Spacer(modifier = Modifier.size(8.dp))
-            TextButton(onClick = { onNavToSignUpPage.invoke() }) {
+            Text(text = "Don't have an Account?",
+                modifier = Modifier.padding(12.dp))
+            Button(onClick = { onNavToSignUpPage.invoke() }) {
                 Text(text = "Sign Up")
             }
         }

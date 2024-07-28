@@ -1,6 +1,11 @@
 package com.example.projectuasmobile.detail
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
@@ -9,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -36,13 +43,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.navigation.NavController
+import com.example.projectuasmobile.MainActivity
+import com.example.projectuasmobile.location.LocationUtils
+import com.example.projectuasmobile.location.LocationViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
 import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun DetailScreen(
+    locationUtils: LocationUtils,
     detailViewModel: DetailViewModel?,
+    locationViewModel: LocationViewModel,
+    context: Context,
     noteId: String,
+    navController: NavController,
     onNavigate: () -> Unit
 ){
     val detailUiState = detailViewModel?.detailUiState ?: DetailUiState()
@@ -55,6 +73,36 @@ fun DetailScreen(
     val isNoteIdNotBlank = noteId.isNotBlank()
     val icon = if (isNoteIdNotBlank) Icons.Default.Refresh
         else Icons.Default.Check
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            if(permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+                && permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true){
+
+                locationUtils.requestLocationUpdates(locationViewModel = locationViewModel)
+            } else {
+                val rationalRequired = ActivityCompat.shouldShowRequestPermissionRationale(
+                    context as MainActivity,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+
+                if(rationalRequired) {
+                    Toast.makeText(context,
+                        "Location Permission is required for this feature to work", Toast.LENGTH_LONG)
+                        .show()
+                } else{
+                    Toast.makeText(context,
+                        "Location Permission is required. Please enable it in the Android Settings",
+                        Toast.LENGTH_LONG)
+                        .show()
+                }
+            }
+        }
+    )
 
     LaunchedEffect(key1 = Unit) {
         if (isNoteIdNotBlank){
@@ -140,6 +188,33 @@ fun DetailScreen(
                     .weight(1f)
                     .padding(8.dp)
             )
+
+            OutlinedTextField(
+                value = detailUiState.address,
+                onValueChange = {detailViewModel?.onAddressChange(it)},
+                label = { Text(text = "Address")},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(8.dp)
+            )
+            Button(onClick = {
+                if(locationUtils.hasLocationPermission(context)){
+                    locationUtils.requestLocationUpdates(locationViewModel)
+                    navController.navigate("locationscreen"){
+                        this.launchSingleTop
+                    }
+                } else {
+                    requestPermissionLauncher.launch(arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ))
+                }
+            },
+                modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                Text(text = "Set Address")
+            }
         }
     }
 }
